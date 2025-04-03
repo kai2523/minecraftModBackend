@@ -16,7 +16,7 @@ app.get('/', (req, res) => {
 const validApiKey = process.env.API_KEY; // In .env hinterlegen
 
 function authenticateApiKey(req, res, next) {
-  const apiKey = req.headers['x-api-key'];
+  const apiKey = req.headers['api-key'];
   if (!apiKey || apiKey !== validApiKey) {
     return res.status(403).json({ error: 'Ungültiger API-Schlüssel' });
   }
