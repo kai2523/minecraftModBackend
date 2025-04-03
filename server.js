@@ -13,7 +13,18 @@ app.get('/', (req, res) => {
     res.send('Minecraft Chat Backend ist aktiv!');
 });
 
-app.post('/chat', async (req, res) => {
+const validApiKey = process.env.API_KEY; // In .env hinterlegen
+
+function authenticateApiKey(req, res, next) {
+  const apiKey = req.headers['x-api-key'];
+  if (!apiKey || apiKey !== validApiKey) {
+    return res.status(403).json({ error: 'Ungültiger API-Schlüssel' });
+  }
+  next();
+}
+
+// Wende die Middleware für den /chat-Endpunkt an:
+app.post('/chat', authenticateApiKey, async (req, res) => {
     try {
         const { message, context } = req.body;  // context optional, für Gesprächshistorie
         if (!message) {
