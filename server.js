@@ -20,14 +20,20 @@ app.post('/chat', async (req, res) => {
             return res.status(400).json({ error: 'Keine Nachricht übergeben.' });
         }
 
+        // Neue Systemnachricht mit der gewünschten Beschreibung
+        const systemMessage = "Du bist ein Villager in Minecraft. Du wirst gefragt: 'Gib mir bitte eine kurze Antwort auf die folgende Frage.'";
+
+        // Nachrichten-Array mit der erweiterten Systemnachricht und den Benutzer-/Kontext-Nachrichten
+        const messages = [
+            { role: "system", content: systemMessage },
+            ...(context || []),
+            { role: "user", content: message }
+        ];
+
         // ChatGPT API Anfrage vorbereiten
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
             model: "gpt-3.5-turbo",
-            messages: [
-                { role: "system", content: "Du bist ein hilfreicher Dorfbewohner." },
-                ...context || [],
-                { role: "user", content: message }
-            ]
+            messages: messages
         }, {
             headers: {
                 'Content-Type': 'application/json',
@@ -42,7 +48,6 @@ app.post('/chat', async (req, res) => {
         res.status(500).json({ error: 'Fehler bei der Verarbeitung der Anfrage.' });
     }
 });
-
 app.listen(PORT, () => {
     console.log(`Server läuft auf Port ${PORT}`);
 });
