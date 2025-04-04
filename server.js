@@ -18,6 +18,7 @@ const validApiKey = process.env.API_KEY; // In .env hinterlegen
 function authenticateApiKey(req, res, next) {
   const apiKey = req.headers['api-key'];
   if (!apiKey || apiKey !== validApiKey) {
+    console.log("Ungültiger API-Schlüssel:", apiKey);
     return res.status(403).json({ error: 'Ungültiger API-Schlüssel' });
   }
   next();
@@ -26,8 +27,10 @@ function authenticateApiKey(req, res, next) {
 // Wende die Middleware für den /chat-Endpunkt an:
 app.post('/chat', authenticateApiKey, async (req, res) => {
     try {
+        console.log("Eingehender Request-Body:", req.body);
         const { message, context } = req.body;  // context optional, für Gesprächshistorie
         if (!message) {
+            console.log("Fehlende Nachricht im Request");
             return res.status(400).json({ error: 'Keine Nachricht übergeben.' });
         }
 
@@ -41,6 +44,8 @@ app.post('/chat', authenticateApiKey, async (req, res) => {
             { role: "user", content: message }
         ];
 
+        console.log("Konstruiertes messages-Array für OpenAI:", messages);
+
         // ChatGPT API Anfrage vorbereiten
         const response = await axios.post('https://api.openai.com/v1/chat/completions', {
             model: "gpt-3.5-turbo",
@@ -52,13 +57,21 @@ app.post('/chat', authenticateApiKey, async (req, res) => {
             }
         });
 
+        console.log("Antwort von OpenAI:", response.data);
+
         const reply = response.data.choices[0].message.content;
         res.json({ reply });
     } catch (error) {
-        console.error(error);
+        // Detailliertere Ausgabe des Fehlers
+        if (error.response) {
+            console.error("Fehler bei der Anfrage an OpenAI:", error.response.status, error.response.data);
+        } else {
+            console.error("Unbekannter Fehler:", error.message);
+        }
         res.status(500).json({ error: 'Fehler bei der Verarbeitung der Anfrage.' });
     }
 });
+
 app.listen(PORT, () => {
     console.log(`Server läuft auf Port ${PORT}`);
 });
