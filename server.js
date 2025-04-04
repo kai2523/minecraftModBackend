@@ -37,10 +37,16 @@ app.post('/chat', authenticateApiKey, async (req, res) => {
         // Neue Systemnachricht mit der gewünschten Beschreibung
         const systemMessage = "Du bist ein Villager in Minecraft. Du wirst gefragt: 'Gib mir bitte eine kurze Antwort auf die folgende Frage.'";
 
+        // Konvertiere das context-Array in ein Array von Objekten, falls vorhanden
+        const contextObjects = (context || []).map(entry => ({
+            role: "assistant", // oder eine andere passende Rolle, je nach gewünschter Logik
+            content: entry
+        }));
+
         // Nachrichten-Array mit der erweiterten Systemnachricht und den Benutzer-/Kontext-Nachrichten
         const messages = [
             { role: "system", content: systemMessage },
-            ...(context || []),
+            ...contextObjects,
             { role: "user", content: message }
         ];
 
