@@ -21,7 +21,7 @@ function authenticateApiKey(req, res, next) {
     console.log("Ungültiger API-Schlüssel:", apiKey);
     return res.status(403).json({ error: 'Ungültiger API-Schlüssel' });
   }
-  next();
+  next()
 }
 
 // Wende die Middleware für den /chat-Endpunkt an:
