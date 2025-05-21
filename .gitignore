@@ -1,0 +1,8 @@
+.env
+node_modules
+package-lock.json
+tinybert-german-finetuned/model.safetensors
+hf_cache
+venv.DS_Store
+venv
+__pycache__
