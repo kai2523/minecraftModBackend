@@ -1,12 +1,20 @@
-Flask
-python-dotenv
-transformers
-torch
-safetensors
-openai
-requests
-beautifulsoup4
-python-Levenshtein
-spacy
-de-core-news-sm  # oder: spacy[de]
-gunicorn
+Flask==3.1.1
+gunicorn==23.0.0
+python-dotenv==1.1.0
+
+# NLP
+spacy==3.8.6
+de-core-news-sm @ https://github.com/explosion/spacy-models/releases/download/de_core_news_sm-3.8.0/de_core_news_sm-3.8.0-py3-none-any.whl#sha256=fec69fec52b1780f2d269d5af7582a5e28028738bd3190532459aeb473bfa3e7
+
+# Wiki & Requests
+requests==2.32.3
+beautifulsoup4==4.13.4
+python-Levenshtein==0.27.1
+
+# AI-Pipelines
+torch==2.7.0       # CPU-only
+transformers==4.51.3
+safetensors==0.5.3
+
+# OpenAI
+openai==1.79.0
