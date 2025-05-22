@@ -15,7 +15,7 @@ from wiki_integration.get_wiki_information import match_key_words, get_wiki_page
 from wiki_integration.question_key_words import extract_keywords_pos_lemma, holmes_style_compound_split
 
 # Sentiment-Analyse
-from sentiment_analysis.sentiment_analysis import init_sentiment_pipeline, analyze_sentiment
+from sentiment_analysis import init_sentiment_pipeline, analyze_sentiment
 
 # Chat-Request
 from llm.chatgpt_request import build_chat_payload, send_chat_request
@@ -28,7 +28,7 @@ load_dotenv()
 PORT = int(os.getenv("PORT", 3000))
 VALID_API_KEY = os.getenv("API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-WIKI_API_URL = os.getenv("WIKI_API_URL", "https://minecraft.fandom.com/de/api.php")
+WIKI_API_URL = "https://minecraft.fandom.com/de/api.php"
 WORDLIST_PATH = "wiki_integration/de_50k.txt"
 
 openai.api_key = OPENAI_API_KEY

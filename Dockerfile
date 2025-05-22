@@ -10,4 +10,4 @@ COPY . .
 ENV TOKENIZERS_PARALLELISM=false
 ENV PYTHONUNBUFFERED=1
 
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:3000", "--workers", "4"]
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:3000", "--workers", "2"]
