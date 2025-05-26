@@ -12,24 +12,24 @@ import pickle
 
 def create_matching_dict(wiki_api_url):
     """
-    Creates a dictionary which contains the page titles and redirect titles
-    for each Minecraft Wiki page as the basis for matching the key words from
-    the user question with the Minecraft Wiki pages
+    Erstellt ein Dictionary, das die Seitentitel und Redirect-Titel für jede
+    Minecraft Wiki Seite als Basis für das Matching der Schlüsselwörter
+    aus den Nutzerfragen mit den Minecraft Wiki Seiten enthält
 
     Args:
-     wiki_api_url (str): URL of the Minecraft Wiki used in the API call
-    Return:
-     matching_dict (dicitonary): All Minecraft Wiki page titles and redirect titles
+     wiki_api_url (str): URL des Minecraft Wiki für den API call
+    Returns:
+     matching_dict (dicitonary): Alle Minecraft Wiki Seitetitel und Redirect-Titel
     """
 
-    # Get all page titles
+    # Alle Seitentitel holen
     page_titles = get_wiki_page_titles(wiki_api_url)
     print(f"{len(page_titles)} Titel gefunden.")
 
-    # Create matching dictionary
+    # Matching Dictionary erstellen
     matching_dict = {}
     for page_title in page_titles:
-        # Get all redirect titles
+        # Alle Redirect-Titel holen
         redirect_titles = get_wiki_page_redirect_titles(wiki_api_url, page_title)
         section_infos = get_wiki_page_section_infos(wiki_api_url, page_title)
 
@@ -50,20 +50,20 @@ def create_matching_dict(wiki_api_url):
 
 def get_wiki_page_titles(wiki_api_url):
     """
-    Makes an API call to the Minecraft Wiki which gets the title of each
-    Minecraft Wiki page
+    Führt API Calls an das Minecraft Wiki aus, die den Titel jeder
+    Minecraft Wiki Seite zurückgeben
 
     Args:
-     wiki_api_url (str): URL of the Minecraft Wiki used in the API call
-    Return:
-     page_titles (list): List of all Minecraft Wiki page titles
+     wiki_api_url (str): URL des Minecraft Wiki für den API call
+    Returns:
+     page_titles (list): Liste aller Minecraft Wiki Seitentitel
     """
 
     page_titles = []
     letters = list(string.ascii_uppercase) + ["Ä", "Ö", "Ü"]
     apcontinue = None
 
-    # Get all page titles from Media Wiki API
+    # Alle Seitentitel von der Minecraft Wiki API holen
     for letter in letters:
         while True:
             headers = {
@@ -83,7 +83,7 @@ def get_wiki_page_titles(wiki_api_url):
 
             response = requests.get(wiki_api_url, headers=headers, params=params)
 
-            # Collect page titles
+            # Seitentitel sammeln
             data = response.json()
             pages = data.get("query", {}).get("allpages", [])
             for page in pages:
@@ -99,27 +99,26 @@ def get_wiki_page_titles(wiki_api_url):
 
                 page_titles.append(page_title)
 
-            # Check if there are more pages
+            # Prüfen, ob weitere Seitentitel in der Antwort vorhanden sind
             if "continue" in data:
                 apcontinue = data["continue"]["apcontinue"]
             else:
                 break
-
-    # page_titles = ["handwerk", "spitzhacke"]
 
     return page_titles
 
 
 def get_wiki_page_redirect_titles(wiki_api_url, page_title):
     """
-    Makes an API call to the Minecraft Wiki which gets the titles of all redirects
-    to the given Minecraft Wiki page
+    Führt einen API Call an das Minecraft Wiki aus, der alle Redirect-Titel für die
+    gegebene Minecraft Wiki Seite zurückgibt
 
     Args:
-     wiki_api_url (str): URL of the Minecraft Wiki used in the API call
-     page_title (str): Title of the given Minecraft Wiki page
-    Return:
-     redirect_titles (list): List of all redirect titles to the Minecraft Wiki page
+     wiki_api_url (str): URL des Minecraft Wiki für den API call
+     page_title (str): Title der gegebenen Minecraft Wiki Seite
+    Returns:
+     redirect_titles (list): Liste aller Redirect-Titel, die auf die gegebene
+                             Minecraft Wiki Seite führen
     """
 
     headers = {
@@ -136,7 +135,7 @@ def get_wiki_page_redirect_titles(wiki_api_url, page_title):
 
     response = requests.get(wiki_api_url, headers=headers, params=params)
 
-    # Collect redirect title
+    # Redirect-Titel sammeln
     data = response.json()
     backlinks = data.get("query", {}).get("backlinks", [])
     redirect_titles = []
@@ -149,15 +148,15 @@ def get_wiki_page_redirect_titles(wiki_api_url, page_title):
 
 def get_wiki_page_section_infos(wiki_api_url, page_title):
     """
-    Makes an API call to the Minecraft Wiki which gets the titles of all sections
-    and their indexes of the given Minecraft Wiki page
+    Führt einen API Call an das Minecraft Wiki aus, der den Titel und alle Unterkapitel
+    und deren Indizes von der gegebenen Minecraft Wiki Seite zurückgibt
 
     Args:
-     wiki_api_url (str): URL of the Minecraft Wiki used in the API call
-     page_title (str): Title of the given Minecraft Wiki page
-    Return:
-     section_infos (list): List of all sections and section indexes of the
-                             Minecraft Wiki page
+     wiki_api_url (str): URL des Minecraft Wiki für den API call
+     page_title (str): Title der gegebenen Minecraft Wiki Seite
+    Returns:
+     section_infos (list): Liste aller Unterkapitel und deren Indizes der gegebenen
+                           Minecraft Wiki Seite
     """
 
 
@@ -167,7 +166,7 @@ def get_wiki_page_section_infos(wiki_api_url, page_title):
     """
 
 
-    # Get all section infos from Media Wiki API
+    # Alle Informationen zu den Unterkapiteln von der Minecraft Wiki API holen
     headers = {
         "User-Agent": "MinecraftVillagerBot"
     }
@@ -181,7 +180,7 @@ def get_wiki_page_section_infos(wiki_api_url, page_title):
 
     response = requests.get(wiki_api_url, headers=headers, params=params)
 
-    # Collect section titles and indexes
+    # Titel und Indizes der Unterkapitel holen
     data = response.json()
     sections = data.get("parse", {}).get("sections", [])
     section_infos = []
@@ -195,27 +194,27 @@ def get_wiki_page_section_infos(wiki_api_url, page_title):
 
 def match_key_words(matching_dict, key_words, max_distance = 0):
     """
-    Compares the key words from the user question to all Minecraft Wiki page titles
-    and returns the matched titles
+    Vergleicht die Schlüsselwörter der Nutzerfrage mit allen Minecraft Wiki Seitentiteln
+    und gibt die gematched Titel zurück
 
     Args:
-     matching_dict (dictionary): All Minecraft Wiki page titles and redirect titles
-     key_words (list): Extracted key words from the user question
-     max_distance (int): Maximum distance for calculating the Levenshtein distance
-    Return:
-     matched_pages (list): All matched page titles
+     matching_dict (dictionary): Alle Minecraft Wiki Seitetitel und Redirect-Titel
+     key_words (list): Aus den Nutzerfragen extrahierte Schlüsselwörter
+     max_distance (int): Maximale Levenshtein-Distanz
+    Returns:
+     matched_pages (list): Alle gematchten Seitentitel
     """
 
     matched_pages = []
     for page_title, info in matching_dict.items():
-        # Use page title and redirect titles for matching
+        # Seitentitel und Redirect-Titel für das Marching nutzen
         redirects = info.get("redirects", [])
         all_titles = [page_title] + redirects
         
-        # Check if key words match with titles or redirects
+        # Schlüsselwörter mit Seitentiteln und Redirect-Titeln matchen
         for key_word in key_words:
             for title in all_titles:
-                # Consider typos in user questions
+                # Schreibfehler in den Nutzerfragen berücksichtigen
                 distance = Levenshtein.distance(key_word, title)
                 if distance <= max_distance:
                     matched_pages.append(page_title)
@@ -226,21 +225,21 @@ def match_key_words(matching_dict, key_words, max_distance = 0):
 
 def get_wiki_page(wiki_api_url, matched_pages):
     """
-    Makes API calls to the Minecraft Wiki which get the full Minecraft Wiki pages
-    by the page titles
+    Führt API Calls an das Minecraft Wiki aus, die die vollständigen Seiteninhalte
+    der gegebenen Seitentitel zurückgeben
 
     Args:
-     wiki_api_url (str): URL of the Minecraft Wiki used in the API call
-     matched_pages (list): Titles of the matched Minecraft Wiki pages
-    Return:
-     html_pages (list): HTML codes of the matched Minecraft Wiki pages
+     wiki_api_url (str): URL des Minecraft Wiki für den API call
+     matched_pages (list): Alle gematchten Seitentitel
+    Returns:
+     html_pages (list): HTML der gematchten Minecraft Wiki Seiten
     """
 
     """
     noch Error-Handling einbauen falls page_title wg Technik Wiki etc. nicht funktioniert
     """
 
-    # Get wiki page from Media Wiki API
+    # Seiten von der Minecraft Wiki API holen
     html_pages = []
     for page_title in matched_pages:
         headers = {
@@ -257,7 +256,7 @@ def get_wiki_page(wiki_api_url, matched_pages):
 
         response = requests.get(wiki_api_url, headers=headers, params=params)
 
-        # Parse response
+        # Antwort parsen
         json = response.json()
         html = json["parse"]["text"]["*"]
         html = BeautifulSoup(html, "html.parser")
@@ -269,44 +268,45 @@ def get_wiki_page(wiki_api_url, matched_pages):
 
 def format_html(html_pages):
     """
-    Formats the HTML codes of the matched Minecraft Wiki pages into normal text
+    Formatiert den HTML-Code der gematchten Minecraft Wiki Seiten als normalen Text
 
     Args:
-     html_pages (list): HTML codes of the matched Minecraft Wiki pages
-    Return:
-     formatted_pages (list): Formatted text of the matched Minecraft Wiki pages
+     html_pages (list): HTML der gematchten Minecraft Wiki Seiten
+    Returns:
+     formatted_pages (list): Formattierter Text der gematchten Minecraft Wiki Seiten
     """
 
     formatted_pages = []
     for html_page in html_pages:
-        # Remove mobile only sections
+        # Mobile only Abschnitte entfernen
         for section in html_page.find_all(class_="nomobile mobileonly"):
             section.decompose()
 
         for section in html_page.find_all("span", class_="dateiUrl nomobile mobileonly"):
             section.decompose()
 
-        # Format tables
+        # Tabellen formatieren
         tables = html_page.find_all("table")
 
         for table in tables:
             rows = table.find_all("tr")
             formatted_rows = []
 
-            # Include table header
+            # Tabellenüberschrift miteinbeziehen
             if table.caption:
                 caption = table.caption.get_text(separator=" ", strip=True)
                 formatted_rows.append(f"\n{caption}")
 
-            # Format each table row
+            # Jede Tabellenzeile formatieren
             rowspans = {}
             for row in rows:
                 cols = row.find_all(["th", "td"])
                 col_text = []
                 col_idx = 0
 
+                # Jede Tabellenspalte der Zeile formatieren
                 for col in cols:
-                    # Consider rowspan and colspan argument
+                    # Rowspan- und Colpan-Argument berücksichtigen
                     while col_idx in rowspans:
                         remaining, value = rowspans[col_idx]
                         col_text.append(value)
@@ -318,12 +318,12 @@ def format_html(html_pages):
 
                         col_idx += 1
 
-                    # Get text from each column
+                    # Text der Spalte holen
                     text = col.get_text(separator=" ", strip=True)
                     if not text:
                         text = "Bild"
 
-                    # Get rowspan and colspan argument
+                    # Rowspan- und Colspan-Werte holen
                     rowspan = int(col.get("rowspan", 1))
                     colspan = int(col.get("colspan", 1))
 
@@ -331,11 +331,11 @@ def format_html(html_pages):
                         for offset in range(colspan):
                             rowspans[col_idx + offset] = [rowspan - 1, text]
 
-                    # Add colspan values
+                    # Colspan-Werte hinzufügen
                     col_text.extend([text] * colspan)
                     col_idx += colspan
 
-                # Add rowspan values
+                # Rowpsan-Werte hinzufügen
                 while col_idx in rowspans:
                     remaining, value = rowspans[col_idx]
                     col_text.append(value)
@@ -347,11 +347,11 @@ def format_html(html_pages):
 
                 formatted_rows.append(" | ".join(col_text))
 
-            # Replace table html with text
+            # Html-Code der Tabelle mit Text ersetzen
             table_text = "\n".join(formatted_rows)
             table.string = table_text
 
-        # Replace remaining html with text
+        # Verbleibenden HTML-Code mit Text ersetzen
         page_text = html_page.get_text()
 
         formatted_pages.append(page_text)
@@ -360,9 +360,8 @@ def format_html(html_pages):
 
 
 if __name__ == "__main__":
-    # API URLs for the Minecraft Fandom Wiki and the official Minecraft Wiki
-    url_fandom_wiki = "https://minecraft.fandom.com/de/api.php"
-    url_official_wiki = "https://de.minecraftwiki.net/api.php"
+    # API URL des offiziellen Minecraft Wiki
+    wiki_api_url = "https://de.minecraftwiki.net/api.php"
 
     # matching_dict = create_matching_dict(url_fandom_wiki)
     """with open("matching_dict.pkl", "wb") as f:
@@ -375,7 +374,7 @@ if __name__ == "__main__":
     matched_pages = match_key_words(matching_dict, key_words)
     print(matched_pages)
 
-    response = get_wiki_page(url_fandom_wiki, matched_pages)
+    response = get_wiki_page(wiki_api_url, matched_pages)
     wiki_pages = format_html(response)
 
     for i, page in enumerate(wiki_pages, 1):
