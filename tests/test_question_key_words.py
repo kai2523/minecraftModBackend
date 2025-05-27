@@ -4,8 +4,13 @@ test_question_key_words.py
 Modul zum Testen von POS-Tagging, Lemmatisierung und Compound-Splitting.
 """
 
+import sys
+import os
 import unittest
 import spacy
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from wiki_integration.question_key_words import extract_keywords_pos_lemma_ner, holmes_style_compound_split
 
 # Lade das deutsche Sprachmodell von spaCy
