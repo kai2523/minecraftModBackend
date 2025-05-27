@@ -1,52 +1,62 @@
-"""
-Copyright Felix Weller, 2025
-"""
-
-"""
-github commands:
-- Packages installieren: npm install
-
-- git pull https://github.com/kai2523/minecraftModBackend.git -> aktuelle Dateien ziehen
-- git add . -> alle Dateien auswählen
-- git commit -m "Kommentar"
-- git push
-
-- Lokal testen: npm start
-- curl -X POST https://localhost:3000/chat \
-  -H "Content-Type: application/json" \
-  -H "api-key: 4luUOspevcoogFBMggw0aiCsVjeZWd1KS50e2C5upj5wSmrgeG0OY3sIlMZLfJHK79PNO5eXarQfvP5h9svp2nyJmo5Y175PzFayyOnZSUcgWYNHlpQlsPM5ljloQui7" \
-  -d "{"message": "Chat Nachricht", "context": []}"
-"""
-
 import spacy
 
-# Lade das deutsche Sprachmodell
+# Lade das deutsche Sprachmodell für die Verarbeitung natürlicher Sprache
 nlp = spacy.load("de_core_news_sm")
 
-def extract_keywords_pos_lemma(user_question):
-    # Verarbeite die Eingabe
-    doc = nlp(user_question)
+def extract_keywords_pos_lemma_ner(user_question):
+    """
+    Extrahiert Schlüsselwörter aus der Nutzereingabe mittels POS-Tagging und Named Entity Recognition (NER).
+    
+    Args:
+     user_question (str): Die vom Nutzer eingegebene Frage auf Deutsch.
+    
+    Return:
+     keywords (list):   Eine Liste eindeutiger Schlüsselwörter, bestehend aus wichtigen Lemmata
+                        (Nomen, Verben) und benannten Entitäten.
+    """
 
-    # Definiere wichtige POS-Tags
+    doc = nlp(user_question)
     important_pos = {"NOUN", "VERB"}
 
-    # Extrahiere Schlüsselwörter (lemma-basiert)
     keywords = []
+
+    # Extrahiere relevante Lemmata basierend auf den POS-Tags
     for token in doc:
-        if token.pos_ in important_pos:
-            keywords.append(token.lemma_)
+        lemma = token.lemma_
+        if token.pos_ in important_pos and lemma not in keywords:
+            keywords.append(lemma)
+
+    # Falls noch nicht enthalten, füge zusätzlich erkannte Named Entities hinzu
+    for ent in doc.ents:
+        if ent.text not in keywords:
+            keywords.append(ent.text)
 
     return keywords
 
-# Holmes-Style rekursiver Compound-Splitter
+
 def holmes_style_compound_split(word, wordlist):
+    """
+    Zerlegt zusammengesetzte deutsche Wörter rekursiv nach dem Holmes-Ansatz.
+
+    Args:
+     word (str): Das zusammengesetzte Wort, das zerlegt werden soll.
+     wordlist (set): Eine Menge gültiger deutscher Wörter, gegen die geprüft wird.
+    
+    Return:
+     results (list):    Eine Liste möglicher Wortzerlegungen. 
+                        Das ursprüngliche Wort wird immer als erste Variante zurückgegeben.
+    """
+    
+    # Normalisiere auf Kleinschreibung für den Vergleich mit Wortliste
     word = word.lower()
     results = []
 
     def helper(subword, path):
+        # Wenn das Wort vollständig zerlegt wurde, speichere die Pfadkombination
         if not subword:
             results.append(path)
             return
+        # Versuche ab Position 3 alle möglichen Prefixe, die in der Wortliste enthalten sind
         for i in range(3, len(subword)+1):
             prefix = subword[:i]
             if prefix in wordlist:
@@ -54,25 +64,30 @@ def holmes_style_compound_split(word, wordlist):
 
     helper(word, [])
 
-    # Falls keine sinnvolle Zerlegung gefunden wird, gib das Wort selbst zurück
-    if not results:
-        return [[word]]
+    # Falls keine Wortzerlegung gefunden wurde, gib das Originalwort zurück
+    return [[word]] + results if results else [[word]]
 
-    return results
+'''
+Hinweis zur Wortliste:
+Die Datei "de_50k.txt" enthält die 50.000 häufigsten deutschen Wörter (basierend auf OpenSubtitles 2018),
+und dient der Zerlegung zusammengesetzter Wörter (Compound-Splitting).
+Quelle: https://github.com/hermitdave/FrequencyWords/blob/master/content/2018/de/de_50k.txt
+'''
 
 if __name__ == "__main__":
-    # Lade Wortliste
+    # Lade die Wortliste beim Start (für Compound-Splitting)
     with open("de_50k.txt", encoding="utf-8") as f:
         wordlist = set(line.strip().split()[0] for line in f)
 
+    # Endlosschleife zum Testen von Benutzereingaben
     while True:
         user_question = input("Frage eingeben: ")
         
-        # POS-Tagging und Lemmatisierung
-        keywords = extract_keywords_pos_lemma(user_question)
+        # Extrahiere Schlüsselwörter aus der Benutzereingabe
+        keywords = extract_keywords_pos_lemma_ner(user_question)
         print("Lemma:", keywords)
 
-        # Compound-Splitting für jedes Schlüsselwort
+        # Zerlege jedes gefundene Schlüsselwort in mögliche Teilwörter
         for keyword in keywords:
             splits = holmes_style_compound_split(keyword, wordlist)
             print(f"Zerlegungen für '{keyword}': {splits}")
