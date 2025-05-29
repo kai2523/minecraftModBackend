@@ -1,10 +1,3 @@
-"""
-test_key_words_matching.py
-
-Modul zum Testen des Matching des Schlüsselwörter aus den Nutzerfragen
-mit den Seitentiteln aus dem Matching Dictionary
-"""
-
 import sys
 import os
 import unittest
@@ -14,6 +7,10 @@ from wiki_integration.key_words_matching import match_key_words
 
 
 class TestMatchKeyWords(unittest.TestCase):
+    """
+    Klasse zum Testen des Matching der Schlüsselwörter aus den Nutzerfragen mit
+    den Seitentiteln aus dem Matching Dictionary
+    """
 
     def setUp(self):
         """
