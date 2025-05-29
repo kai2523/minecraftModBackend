@@ -44,6 +44,7 @@ class TestMatchKeyWords(unittest.TestCase):
             }
         }
 
+
     def test_exact_match(self):
         """
         Testet das exakte Matching von Schlüsselwörtern Diamant mit den
