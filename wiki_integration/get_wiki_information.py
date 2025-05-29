@@ -1,38 +1,5 @@
-import json
-import Levenshtein
 import requests
 from bs4 import BeautifulSoup
-
-
-def match_key_words(matching_dict, key_words, max_distance = 0):
-    """
-    Vergleicht die Schlüsselwörter der Nutzerfrage mit allen Minecraft Wiki Seitentiteln
-    und gibt die gematched Titel zurück
-
-    Args:
-     matching_dict (dictionary): Alle Minecraft Wiki Seitetitel und Redirect-Titel
-     key_words (list): Aus den Nutzerfragen extrahierte Schlüsselwörter
-     max_distance (int): Maximale Levenshtein-Distanz
-    Returns:
-     matched_pages (list): Alle gematchten Seitentitel
-    """
-
-    matched_pages = []
-    for page_title, info in matching_dict.items():
-        # Seitentitel und Redirect-Titel für das Marching nutzen
-        redirects = info.get("redirects", [])
-        all_titles = [page_title] + redirects
-        
-        # Schlüsselwörter mit Seitentiteln und Redirect-Titeln matchen
-        for key_word in key_words:
-            for title in all_titles:
-                # Schreibfehler in den Nutzerfragen berücksichtigen
-                distance = Levenshtein.distance(key_word, title)
-                if distance <= max_distance:
-                    matched_pages.append(page_title)
-                    break
-
-    return matched_pages
 
 
 def get_wiki_page(wiki_api_url, matched_pages):
@@ -163,26 +130,3 @@ def format_html(html_pages):
         formatted_pages.append(page_text)
 
     return formatted_pages
-
-
-if __name__ == "__main__":
-    # API URL des offiziellen Minecraft Wiki
-    wiki_api_url = "https://de.minecraftwiki.net/api.php"
-
-    # Matching Dictionary laden
-    with open("matching_dict.json", "r", encoding="utf-8") as f:
-        matching_dict = json.load(f)
-
-    # Schlüsselwörter matchen
-    key_words = ["craften", "diamantspitzhacke", "diamant"]
-    matched_pages = match_key_words(matching_dict, key_words)
-
-    # Gematchte Wiki Seiten holen
-    response = get_wiki_page(wiki_api_url, matched_pages)
-
-    # Wiki Seiten formattieren
-    wiki_pages = format_html(response)
-
-    for i, page in enumerate(wiki_pages, 1):
-        print(f"\n--- Seite {i} ---\n")
-        print(page)

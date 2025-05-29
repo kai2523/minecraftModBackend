@@ -1,7 +1,5 @@
 import spacy
 
-# Lade das deutsche Sprachmodell für die Verarbeitung natürlicher Sprache
-nlp = spacy.load("de_core_news_sm")
 
 def extract_keywords_pos_lemma_ner(user_question):
     """
@@ -10,10 +8,13 @@ def extract_keywords_pos_lemma_ner(user_question):
     Args:
      user_question (str): Die vom Nutzer eingegebene Frage auf Deutsch.
     
-    Return:
+    Returns:
      keywords (list):   Eine Liste eindeutiger Schlüsselwörter, bestehend aus wichtigen Lemmata
                         (Nomen, Verben) und benannten Entitäten.
     """
+
+    # Lade das deutsche Sprachmodell für die Verarbeitung natürlicher Sprache
+    nlp = spacy.load("de_core_news_sm")
 
     doc = nlp(user_question)
     important_pos = {"NOUN", "VERB"}
@@ -42,7 +43,7 @@ def holmes_style_compound_split(word, wordlist):
      word (str): Das zusammengesetzte Wort, das zerlegt werden soll.
      wordlist (set): Eine Menge gültiger deutscher Wörter, gegen die geprüft wird.
     
-    Return:
+    Returns:
      results (list):    Eine Liste möglicher Wortzerlegungen. 
                         Das ursprüngliche Wort wird immer als erste Variante zurückgegeben.
     """
@@ -56,6 +57,7 @@ def holmes_style_compound_split(word, wordlist):
         if not subword:
             results.append(path)
             return
+
         # Versuche ab Position 3 alle möglichen Prefixe, die in der Wortliste enthalten sind
         for i in range(3, len(subword)+1):
             prefix = subword[:i]
@@ -73,21 +75,3 @@ Die Datei "de_50k.txt" enthält die 50.000 häufigsten deutschen Wörter (basier
 und dient der Zerlegung zusammengesetzter Wörter (Compound-Splitting).
 Quelle: https://github.com/hermitdave/FrequencyWords/blob/master/content/2018/de/de_50k.txt
 '''
-
-if __name__ == "__main__":
-    # Lade die Wortliste beim Start (für Compound-Splitting)
-    with open("de_50k.txt", encoding="utf-8") as f:
-        wordlist = set(line.strip().split()[0] for line in f)
-
-    # Endlosschleife zum Testen von Benutzereingaben
-    while True:
-        user_question = input("Frage eingeben: ")
-        
-        # Extrahiere Schlüsselwörter aus der Benutzereingabe
-        keywords = extract_keywords_pos_lemma_ner(user_question)
-        print("Lemma:", keywords)
-
-        # Zerlege jedes gefundene Schlüsselwort in mögliche Teilwörter
-        for keyword in keywords:
-            splits = holmes_style_compound_split(keyword, wordlist)
-            print(f"Zerlegungen für '{keyword}': {splits}")
