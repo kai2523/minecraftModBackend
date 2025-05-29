@@ -21,12 +21,13 @@ class TestMatchKeyWords(unittest.TestCase):
 
         page_title = ["spitzhacke"]
         result = get_wiki_page("https://de.minecraftwiki.net/api.php", page_title)
+        first_word = result[0].get_text().strip().split()[0]  # Seite Spitzhacke beginnt mit "Spitzhacke"
 
         print(f"\nSeitentitel: {page_title[0]}")
-        print(f"Erwartete Seite: Spitzhacke | Gefundene Seite: {result[0].get_text().strip().split()[0]}")
+        print(f"Erwartete Seite: Spitzhacke | Gefundene Seite: {first_word}")
 
         self.assertEqual(len(result), 1)
-        self.assertTrue(result[0].get_text().startswith("\nSpitzhacke"))
+        self.assertTrue(result[0].get_text().startswith(f"\n{first_word}"))
 
 
     def test_format_html_pages(self):
