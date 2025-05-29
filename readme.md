@@ -169,7 +169,7 @@ Villager beantwortet.
 
 Beschreibung Mod
 
-Das Python Backend gibt die Frage des Spielers an die FUnktion question_key_words weiter,
+Das Python Backend gibt die Frage des Spielers an die Funktion question_key_words weiter,
 in der aus der Frage relevante Schlüsselwörter extrahiert werden.
 
 Beschreibung Key Words
@@ -194,4 +194,4 @@ Verwendung der URL weist daher eine bessere Performance auf.
 
 Beschreibung Sentiment Analyse
 
-Beschreibung ChatGPT Request
+Beschreibung ChatGPT-Request
