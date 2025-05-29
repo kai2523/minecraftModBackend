@@ -40,7 +40,7 @@ def build_chat_payload(
     ]
 
 
-def send_chat_request(messages: list[dict], model: str = "gpt-3.5-turbo", temperature: float = 0.7) -> str:
+def send_chat_request(messages: list[dict], model: str = "gpt-4o", temperature: float = 0.7) -> str:
     """
     Sendet die Chat-Anfrage an die OpenAI-API und gibt die Antwort zurück.
 
