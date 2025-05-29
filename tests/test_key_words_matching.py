@@ -1,5 +1,5 @@
 """
-testkey_words_matching.py
+test_key_words_matching.py
 
 Modul zum Testen des Matching des Schlüsselwörter aus den Nutzerfragen
 mit den Seitentiteln aus dem Matching Dictionary
