@@ -169,8 +169,8 @@ Villager beantwortet.
 
 Beschreibung Mod
 
-Das Python Backend gibt die Frage des Spielers an die Funktion question_key_words weiter,
-in der aus der Frage relevante Schlüsselwörter extrahiert werden.
+Das Python Backend gibt die Frage des Spielers an question_key_words weiter.py, in der aus
+der Frage relevante Schlüsselwörter extrahiert werden.
 
 Beschreibung Key Words
 
