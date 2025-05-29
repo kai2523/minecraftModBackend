@@ -9,8 +9,10 @@ import logging
 import openai
 
 # Wiki-Integration
-from wiki_integration.wiki_information import match_key_words
 from wiki_integration.question_key_words import extract_keywords_pos_lemma_ner, holmes_style_compound_split
+from wiki_integration.key_words_matching import match_key_words
+# Wiki Kontext als Volltext der Seiten
+# from wiki_integration.wiki_information import get_wiki_page, format_html_pages
 
 # Sentiment-Analyse
 from sentiment_analysis import init_sentiment_pipeline, analyze_sentiment
@@ -104,6 +106,10 @@ def chat():
     for matched_page in matched_pages:
         page_info = matching_dict.get(matched_page)
         wiki_context.append(page_info['url'])
+    # Wiki Kontext als Volltext der Seiten
+    # html_pages = get_wiki_page("https://de.minecraftwiki.net/api.php", matched_pages)
+    # wiki_context = format_html_pages(html_pages)
+    app.logger.info(f"Wiki Kontext: {wiki_context}")
 
     # Sentiment
     label, score, sentiment_prompt = analyze_sentiment(sentiment_pipeline, message)
