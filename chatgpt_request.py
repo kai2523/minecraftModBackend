@@ -30,6 +30,7 @@ def build_chat_payload(
         f"{wiki_context}\n"
         "Du bist ein Villager in Minecraft. Dein Wissen beschränkt sich auf Minecraft.\n"
         "Beantworte nur basierend auf den Wiki-Informationen und dem Kontext.\n"
+        "Du darfst auf keinen Fall Emojis oder andere Sonderzeichen verwenden!\n"
         f"{sentiment_prompt}\n"
         "Gib mir bitte eine kurze Antwort."
     )
