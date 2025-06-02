@@ -33,14 +33,14 @@ class TestQuestionKeywords(unittest.TestCase):
         print(f"Erwartet: {expected} | Gefunden: {result}")
         self.assertTrue(expected.issubset(result))
 
-        def test_named_entity(self):
-            # Testet, ob Named Entities korrekt extrahiert werden
-            text = "Wo finde ich eine Netherfestung?"
-            expected = {"finden", "Netherfestung"}
-            result = set(extract_keywords_pos_lemma_ner(text))
-            print(f"\n[NER] Text: {text}")
-            print(f"Erwartet: {expected} | Gefunden: {result}")
-            self.assertTrue(expected.issubset(result))
+    def test_named_entity(self):
+        # Testet, ob Named Entities korrekt extrahiert werden
+        text = "Wo finde ich eine Netherfestung?"
+        expected = {"finden", "Netherfestung"}
+        result = set(extract_keywords_pos_lemma_ner(text))
+        print(f"\n[NER] Text: {text}")
+        print(f"Erwartet: {expected} | Gefunden: {result}")
+        self.assertTrue(expected.issubset(result))
 
     def test_lemmatization(self):
         # Testet, ob Verbformen korrekt auf ihr Lemma reduziert werden
