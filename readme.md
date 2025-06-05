@@ -1,19 +1,98 @@
-Änderungen pullen:
-git pull https://github.com/kai2523/minecraftModBackend.git
+# Minecraft Mod Backend
 
-Änderungen pushen:
-git add . 
-git commit -m "Kommentar zur Änderung"
-git push
+Dieses Projekt stellt ein Python-basiertes Backend für eine Minecraft-Mod bereit. Es ermöglicht, 
+mit Dorfbewohnern (Villagern) über einen Chatbot zu interagieren. Der Bot nutzt Informationen aus 
+der deutschen Minecraft-Wiki und generiert Antworten über die OpenAI API.
 
-Dev-Server lokal starten:
-npm run dev
+## Funktionen
 
-Dev-Server stoppen:
-Str + C
+* Extraktion von Schlüsselwörtern mittels **spaCy** (POS-Tagging und Named Entity Recognition)
+* Matching dieser Schlüsselwörter mit dem Minecraft-Wiki (Levenshtein-Distanz)
+* Abfrage von Inhalten der Mincraft Wiki Seite
+* Sentiment-Analyse über ein fingetuntes, deutsches TinyBERT-Modell
+* Generierung der finalen Chat-Antwort durch ChatGPT
+* Unit-Tests für Kernkomponenten
 
-Test-Nachricht an lokalen Dev-Server:
+## Komponenten im Detail
 
+### Sentimentanalyse
+
+Das Modul `sentiment_analysis.py` nutzt ein lokal gespeichertes BERT-Modell,
+das aus dem öffentlichen **TinyBERT_General_4L_312D_de** von Hugging Face
+gefintunt wurde. Das Finetuning erfolgte auf einem kleinen, von ChatGPT generierten
+Datensatz mit den Klassen *freundlich*, *neutral* und *unfreundlich*. 
+Die einzelnen Schritte zur Datenaufbereitung und zum Training
+sind in den Jupyter-Notebooks unter `finetune_sentiment_model/` dokumentiert.
+Zur Laufzeit wird das gefintunte Modell geladen und macht eine Sentimentanalyse für
+den vom Spieler eingegebene Nachricht. Anschließend wird auf basis des zurückgegeben Sentiments
+ein passenden Prompt erstellt, der den Ton bzw. Freundlichkeit der ChatGPT-Antwort steuert.
+
+### Wortzerlegung und Lemmatisierung
+
+In `question_key_words.py` wird die Nutzerfrage zunächst mit **spaCy** analysiert.
+Aus Nomen und Verben werden die Lemmata extrahiert, zusätzlich erkannte Named
+Entities. Um zusammengesetzte deutsche Wörter zu erkennen, kommt anschließend
+`holmes_style_compound_split` zum Einsatz. Diese Funktion verwendet die in
+`de_50k.txt` enthaltene Wortliste und zerlegt Wörter rekursiv in sinnvolle
+Bestandteile.
+
+### Lookup im Minecraft-Wiki
+
+Die zerlegten Schlüsselwörter werden im Modul `key_words_matching.py` mit Hilfe
+des in `matching_dict.json` gespeicherten Lexikons abgeglichen. Dabei wird eine
+Levenshtein-Distanz von 1 erlaubt, um Tippfehler abzufangen. Für jeden Treffer
+enthält das Dictionary auch die URL zur passenden Wiki-Seite. Optional können
+mit `wiki_information.py` die kompletten Seiteninhalte geladen und formatiert
+werden, was jedoch deutlich mehr Tokens verursacht.
+
+## Installation
+
+Voraussetzungen:
+
+* Docker (Docker Installation siehe <https://docs.docker.com/get-docker/>)
+* Python 3.11 (Optional)
+
+## Start des Backends als Docker-Container (empfohlen)
+
+```bash
+docker-compose up --build
+```
+
+Der Server lauscht standardmäßig auf Port **3000**.
+
+
+## Lokaler Start ohne Docker (nicht empfohlen)
+
+```bash
+# Auch benötigt zum Ausführen der Unittests
+pip install -r requirements.txt
+```
+
+```bash
+python app.py
+```
+
+## Test Nutzung
+
+Für das Testen des Backens haben wir extra ein Shell Skript `test_villager_response.sh`angelegt. 
+Nach dem Start des Backends über Docker, kann das Skript mit
+
+```bash
+./test_villager_response.sh
+```
+
+ausgeführt werden. Es erscheint ein Eingabefeld, in welches Testnachrichten an den Dorfbewohner eingegeben werden können.
+Im Terminal wird dann die jeweilige Antwort des Dorfbewohners ausgegeben.
+
+
+## Test Nutung per curl API Aufruf
+
+**POST `/chat`** erwartet ein JSON-Objekt mit `message` und optional `context`.
+Der API-Key muss im Header `api-key` enthalten sein.
+
+Beispiel:
+
+```bash
 curl -X POST http://localhost:3000/chat \
   -H "Content-Type: application/json" \
   -H "api-key: 4luUOspevcoogFBMggw0aiCsVjeZWd1KS50e2C5upj5wSmrgeG0OY3sIlMZLfJHK79PNO5eXarQfvP5h9svp2nyJmo5Y175PzFayyOnZSUcgWYNHlpQlsPM5ljloQui7" \
@@ -34,133 +113,16 @@ curl -X POST http://localhost:3000/chat \
           "biome: minecraft:plains"
         ]
      }'
+```
+
+Die Antwort enthält das generierte ChatGPT-Statement.
+
+## Tests
+
+Es existieren Unit-Tests im Ordner tests für alle Bestandteile des Backends. Sie werden beim builden des Docker Images automatisch ausgeführt, können alternativ aber auch separat gestartet werden.
 
 
-
-Weitere Testnachricht an lokalen Dev-Server mit anderem Kontext:
-
-curl -X POST http://localhost:3000/chat \
-  -H "Content-Type: application/json" \
-  -H "api-key: 4luUOspevcoogFBMggw0aiCsVjeZWd1KS50e2C5upj5wSmrgeG0OY3sIlMZLfJHK79PNO5eXarQfvP5h9svp2nyJmo5Y175PzFayyOnZSUcgWYNHlpQlsPM5ljloQui7" \
-  -d '{
-    "message": "Wie crafte ich eine Diamantspitzhacke?",
-    "context": [
-      "villager_level: Anfänger",
-      "villager_profession: shepherd",
-      "villager_distance_to_player: 3.5 blocks",
-      "trade: 2x Emerald → 1x Shears",
-      "trade: 18x Gray Wool → 1x Emerald",
-      "world_time: 1937",
-      "time_of_day: 07:56 (Vormittag)",
-      "day_count: Day 0",
-      "is_daytime: true",
-      "is_raining: false",
-      "is_thundering: false",
-      "dimension: minecraft:overworld",
-      "biome: minecraft:plains"
-    ]
-  }'
-
-
-Weitere Testnachricht an lokalen Dev-Server mit anderem Kontext:
-
-curl -X POST http://localhost:3000/chat \
-  -H "Content-Type: application/json" \
-  -H "api-key: 4luUOspevcoogFBMggw0aiCsVjeZWd1KS50e2C5upj5wSmrgeG0OY3sIlMZLfJHK79PNO5eXarQfvP5h9svp2nyJmo5Y175PzFayyOnZSUcgWYNHlpQlsPM5ljloQui7" \
-  -d '{
-    "message": "wie weit bin ich von dir weg?",
-    "context": [
-      "villager_level: Anfänger",
-      "villager_profession: shepherd",
-      "villager_distance_to_player: 3.5 blocks",
-      "trade: 2x Emerald → 1x Shears",
-      "trade: 18x Gray Wool → 1x Emerald",
-      "world_time: 1665",
-      "time_of_day: 07:39 (Vormittag)",
-      "day_count: Day 0",
-      "is_daytime: true",
-      "is_raining: false",
-      "is_thundering: false",
-      "dimension: minecraft:overworld",
-      "biome: minecraft:plains"
-    ]
-  }'
-
-
-----------------------------------------------------------------
-
-Nachricht an richtigen Backend-Server:
-
-curl -X POST https://minecraftmodbackend-production.up.railway.app/chat \
-  -H "Content-Type: application/json" \
-  -H "api-key: 4luUOspevcoogFBMggw0aiCsVjeZWd1KS50e2C5upj5wSmrgeG0OY3sIlMZLfJHK79PNO5eXarQfvP5h9svp2nyJmo5Y175PzFayyOnZSUcgWYNHlpQlsPM5ljloQui7" \
-  -d '{
-    "message": "was hast du so im Angebot?",
-    "context": [
-      "villager_level: Anfänger",
-      "villager_profession: toolsmith",
-      "villager_distance_to_player: 1.9 blocks",
-      "trade: 1x Emerald → 1x Stone Shovel",
-      "trade: 1x Emerald → 1x Stone Axe",
-      "time_of_day: 11:15 (Mittag)",
-      "day_count: Day 0",
-      "is_daytime: true",
-      "is_raining: false",
-      "is_thundering: false",
-      "dimension: minecraft:overworld",
-      "biome: minecraft:plains"
-    ]
-  }'
-
-
-Weitere Nachricht an richtigen Backend-Server mit anderem Kontext:
-curl -X POST https://minecraftmodbackend-production.up.railway.app/chat \
-  -H "Content-Type: application/json" \
-  -H "api-key: 4luUOspevcoogFBMggw0aiCsVjeZWd1KS50e2C5upj5wSmrgeG0OY3sIlMZLfJHK79PNO5eXarQfvP5h9svp2nyJmo5Y175PzFayyOnZSUcgWYNHlpQlsPM5ljloQui7" \
-  -d '{
-    "message": "welche Tageszeit ist es?",
-    "context": [
-      "villager_level: Anfänger",
-      "villager_profession: shepherd",
-      "villager_distance_to_player: 3.5 blocks",
-      "trade: 2x Emerald → 1x Shears",
-      "trade: 18x Gray Wool → 1x Emerald",
-      "world_time: 1937",
-      "time_of_day: 07:56 (Vormittag)",
-      "day_count: Day 0",
-      "is_daytime: true",
-      "is_raining: false",
-      "is_thundering: false",
-      "dimension: minecraft:overworld",
-      "biome: minecraft:plains"
-    ]
-  }'
-
-
-
-Weitere Nachricht richtigen Backend-Server mit anderem Kontext:
-
-curl -X POST https://minecraftmodbackend-production.up.railway.app/chat \
-  -H "Content-Type: application/json" \
-  -H "api-key: 4luUOspevcoogFBMggw0aiCsVjeZWd1KS50e2C5upj5wSmrgeG0OY3sIlMZLfJHK79PNO5eXarQfvP5h9svp2nyJmo5Y175PzFayyOnZSUcgWYNHlpQlsPM5ljloQui7" \
-  -d '{
-    "message": "wie weit bin ich von dir weg?",
-    "context": [
-      "villager_level: Anfänger",
-      "villager_profession: shepherd",
-      "villager_distance_to_player: 3.5 blocks",
-      "trade: 2x Emerald → 1x Shears",
-      "trade: 18x Gray Wool → 1x Emerald",
-      "world_time: 1665",
-      "time_of_day: 07:39 (Vormittag)",
-      "day_count: Day 0",
-      "is_daytime: true",
-      "is_raining: false",
-      "is_thundering: false",
-      "dimension: minecraft:overworld",
-      "biome: minecraft:plains"
-    ]
-  }'
+## Felix sein Text
 
 Das MinecraftModBackend beinhaltet einen Chatbot, der es Minecraft Spielern ermöglicht mit
 einem beliebigen Villager zu kommunizieren. Der Spieler kann über den Chat Informationen
