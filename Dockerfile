@@ -12,12 +12,7 @@ RUN pip install --no-cache-dir --upgrade pip \
 COPY . .
 
 # Unit-Tests ausführen
-RUN python -m unittest discover -v
-
-# Runtime-Image erstellen
-FROM python:3.11-slim AS runtime
-
-WORKDIR /app
+RUN python -m unittest discover -v -s tests -p "test*.py"
 
 EXPOSE 3000
 

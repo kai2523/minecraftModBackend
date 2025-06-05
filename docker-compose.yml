@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    # Name des Images, das lokal gebaut wird
+    image: minecraft-backend:latest
+
+    # Container-Name (optional, kann hilfreich sein)
+    container_name: minecraft-backend-container
+
+    # Port-Mapping: externer Port 3000 → interner Port 3000
+    ports:
+      - "3000:3000"
+
+    # Restart-Policy: bei Fehlern neu starten
+    restart: unless-stopped

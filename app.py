@@ -81,6 +81,8 @@ def chat():
     data = request.get_json() or {}
     message = data.get("message")
     context = data.get("context", [])
+    app.logger.info(f"Nachricht: {message}")
+    app.logger.info(f"Kontext: {context}")
 
     if not message:
         return app.response_class(
