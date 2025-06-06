@@ -38,12 +38,23 @@ Bestandteile.
 
 ### Lookup im Minecraft-Wiki
 
-Die zerlegten Schlüsselwörter werden im Modul `key_words_matching.py` mit Hilfe
-des in `matching_dict.json` gespeicherten Lexikons abgeglichen. Dabei wird eine
-Levenshtein-Distanz von 1 erlaubt, um Tippfehler abzufangen. Für jeden Treffer
-enthält das Dictionary auch die URL zur passenden Wiki-Seite. Optional können
-mit `wiki_information.py` die kompletten Seiteninhalte geladen und formatiert
-werden, was jedoch deutlich mehr Tokens verursacht.
+Anhand der Schlüsselwörter aus der Frage werden in `key_words_matching.py` die zur Beantwortung
+der Frage benötigten Minecraft Wiki Seiten bestimmt. Die Grundlage hierfür bildet das
+`matching_dict.json`, das in `matching_dict.py` über API-Calls an die Minecraft Wiki API erstellt
+wurde. Es enthält die Titel aller verfügbaren Minecraft Wiki Seiten sowie deren Redirects und
+deren URL. `matching_dict.py` prüft für jedes Key Word, ob dieses mit einem Seitentitel oder einem
+Redirect auf eine Seite übereinstimmt, wobei es Schreibfehler mit einer Levenshtein-Distanz von 1
+berücksichtigt. Eine höhere Levenshtein-Distanz als 1 würde in vielen Fällen zu einem Matching
+mit ungewollten Seiten führen.
+
+Die gematchten Wiki Seiten können im weiteren Verlauf entweder in Form der URL oder als Volltext
+in der ChatGPT-Request übergeben werden. Für den Volltext wird in `wiki_information.py` für jede
+gematchte Wiki Seite ein API Call an das Minecraft Wiki ausgeführt, der den HTML-Code der
+jeweiligen Seite zurückgibt und dieser anschließend als Text formatiert. Der Volltext beinhaltet
+jedoch gegenüber der URL einen geringeren Informationsgehalt, da z.B. Bilder nicht dargestellt
+werden können, was in bestimmten Fällen zu einer unvollständigen oder fehlerhaften Beantwortung
+der Frage führen kann, und verhindert zudem bei einer zu hohen Token-Anzahl die ChatGPT-Request.
+Die Verwendung der URL weist daher eine bessere Performance auf.
 
 ## Installation
 
@@ -120,40 +131,3 @@ Die Antwort enthält das generierte ChatGPT-Statement.
 ## Tests
 
 Es existieren Unit-Tests im Ordner tests für alle Bestandteile des Backends. Sie werden beim builden des Docker Images automatisch ausgeführt, können alternativ aber auch separat gestartet werden.
-
-
-## Felix sein Text
-
-Das MinecraftModBackend beinhaltet einen Chatbot, der es Minecraft Spielern ermöglicht mit
-einem beliebigen Villager zu kommunizieren. Der Spieler kann über den Chat Informationen
-zu einem Villager selbst oder zu verschiedensten Spielinhalten erfragen, die ihm der
-Villager beantwortet.
-
-Beschreibung Mod
-
-Das Python Backend gibt die Frage des Spielers an question_key_words.py weiter, in der aus
-der Frage relevante Schlüsselwörter extrahiert werden.
-
-Beschreibung Key Words
-
-Anhand der Schlüsselwörter aus der Frage werden in key_words_matching.py die zur Beantwortung
-der Frage benötigten Minecraft Wiki Seiten bestimmt. Die Grundlage hierfür bildet das
-matching_dict.json, das in matching_dict.py über API-Calls an die Minecraft Wiki API erstellt
-wurde. Es enthält die Titel aller verfügbaren Minecraft Wiki Seiten sowie deren Redirects und
-deren URL. matching_dict.py prüft für jedes Key Word, ob dieses mit einem Seitentitel oder einem
-Redirect auf eine Seite übereinstimmt, wobei es Schreibfehler mit einer Levenshtein-Distanz von 1
-berücksichtigt. Eine höhere Levenshtein-Distanz als 1 würde in vielen Fällen zu einem Matching
-mit ungewollten Seiten führen.
-
-Die gematchten Wiki Seiten können im weiteren Verlauf entweder in Form der URL oder als Volltext
-in der ChatGPT-Request übergeben werden. Für den Volltext wird in wiki_information.py für jede
-gematchte Wiki Seite ein API Call an das Minecraft Wiki ausgeführt, der den HTML-Code der jeweiligen
-Seite zurückgibt und dieser anschließend als Text formatiert. Der Volltext beinhaltet jedoch
-gegenüber der URL einen geringeren Informationsgehalt, da z.B. Bilder nicht dargestellt werden
-können, was in bestimmten Fällen zu einer unvollständigen oder fehlerhaften Beantwortung der Frage
-führen kann, und verhindert zudem bei einer zu hohen Token-Anzahl die ChatGPT-Request. Die
-Verwendung der URL weist daher eine bessere Performance auf.
-
-Beschreibung Sentiment Analyse
-
-Beschreibung ChatGPT-Request
