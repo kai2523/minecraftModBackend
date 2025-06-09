@@ -131,3 +131,77 @@ Die Antwort enthält das generierte ChatGPT-Statement.
 ## Tests
 
 Es existieren Unit-Tests im Ordner tests für alle Bestandteile des Backends. Sie werden beim builden des Docker Images automatisch ausgeführt, können alternativ aber auch separat gestartet werden.
+
+# Minecraft Mod Client (Forge-Mod)
+
+Der Minecraft-Client-Mod befindet sich im Verzeichnis:
+
+```
+/client-dev-environment/
+
+````
+
+### Vorbereitung in IntelliJ IDEA
+
+1. **Projekt öffnen**
+
+   * Starten Sie IntelliJ IDEA.
+   * Wählen Sie `File > Open` und öffnen Sie das Verzeichnis `client-dev-environment/`.
+
+2. **Gradle-Projekt erkennen**
+
+   * IntelliJ sollte die Datei `build.gradle` automatisch erkennen und das Projekt als Gradle-Projekt importieren.
+   * Falls dies nicht automatisch geschieht, klicken Sie mit der rechten Maustaste auf `build.gradle` und wählen Sie `Import Gradle Project`.
+
+3. **Run-Konfigurationen generieren**
+
+   Öffnen Sie das Terminal innerhalb von IntelliJ und führen Sie im Projektverzeichnis folgenden Befehl aus:
+
+   ```bash
+   ./gradlew genIntellijRuns
+
+> Dieser Befehl erzeugt die Run-Konfigurationen für Client und Server.
+
+4. **Minecraft-Client starten**
+
+   * Wählen Sie oben rechts im IntelliJ-Fenster im Dropdown-Menü die Run-Konfiguration `runClient` aus.
+   * Klicken Sie anschließend auf den grünen Play-Button, um den Minecraft-Client im Entwicklungsmodus zu starten.
+
+---
+
+### OpenAI API-Key eintragen
+
+Vor dem Start des Mods muss der Platzhalter `<OPEN_AI_API_KEY>` in der Datei
+`src/main/java/com/nlp/villagerchat/VillagerChatMod.java` durch den tatsächlichen API-Schlüssel ersetzt werden.
+
+```java
+// Datei: VillagerChatMod.java (ca. Zeile 350)
+
+private static final String OPENAI_API_KEY = "<OPEN_AI_API_KEY>";
+```
+
+Ersetzen Sie den Platzhalter durch Ihren gültigen OpenAI API-Key, beispielsweise:
+
+```java
+private static final String OPENAI_API_KEY = "sk-xxxxxx...";
+```
+
+Ohne diese Anpassung ist eine Kommunikation mit dem Backend nicht möglich.
+
+---
+
+### Erstellen des Mod-Builds
+
+Zum Erzeugen des `.jar`-Artifacts führen Sie im Projektverzeichnis den folgenden Befehl aus:
+
+```bash
+./gradlew build
+```
+
+Das fertige `.jar`-File befindet sich anschließend im Verzeichnis:
+
+```
+client-dev-environment/build/libs/
+```
+
+Dieses `.jar` kann in den Minecraft-`mods/`-Ordner eingefügt werden.
