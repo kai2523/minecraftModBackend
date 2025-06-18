@@ -70,6 +70,15 @@ Der Server lauscht standardmäßig auf Port **3000**.
 ## Lokaler Start ohne Docker 
 
 ```bash
+
+# In Windows
+python -m venv minecraft_backend_venv
+.\minecraft_backend_venv\Scripts\activate
+
+# In MacOS
+python -m venv minecraft_backend_venv
+source inecraft_backend_venv/bin/activate
+
 # Auch benötigt zum Ausführen der Unittests
 pip install -r requirements.txt
 ```
@@ -81,13 +90,13 @@ python app.py
 ## Test Nutzung
 
 Für das Testen des Backens haben wir extra ein Python Skript `test_villager_response.py`angelegt. 
-Nach dem Start des Backends über Docker, kann das Skript mit
+Nach dem Start des Backends, kann das Skript mit
 
 ```bash
-./test_villager_response.py
+python ./test_villager_response.py
 ```
 
-ausgeführt werden. Es erscheint ein Eingabefeld, in welches Testnachrichten an den Dorfbewohner eingegeben werden können.
+in einem separaten Terminal ausgeführt werden. Es erscheint ein Eingabefeld, in welches Testnachrichten an den Dorfbewohner eingegeben werden können.
 Im Terminal wird dann die jeweilige Antwort des Dorfbewohners ausgegeben.
 
 
