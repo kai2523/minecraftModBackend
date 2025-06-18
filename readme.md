@@ -29,12 +29,7 @@ ein passenden Prompt erstellt, der den Ton bzw. Freundlichkeit der ChatGPT-Antwo
 
 ### Wortzerlegung und Lemmatisierung
 
-In `question_key_words.py` wird die Nutzerfrage zunächst mit **spaCy** analysiert.
-Aus Nomen und Verben werden die Lemmata extrahiert, zusätzlich erkannte Named
-Entities. Um zusammengesetzte deutsche Wörter zu erkennen, kommt anschließend
-`holmes_style_compound_split` zum Einsatz. Diese Funktion verwendet die in
-`de_50k.txt` enthaltene Wortliste und zerlegt Wörter rekursiv in sinnvolle
-Bestandteile.
+In der Datei `question_key_words.py` wird die Nutzerfrage zunächst mithilfe von **spaCy** analysiert. Dabei werden die Lemmata aller erkannten Nomen und Verben extrahiert sowie zusätzliche Named Entities identifiziert. Zur Erkennung zusammengesetzter deutscher Wörter wird anschließend die Funktion `holmes_style_compound_split` aufgerufen. Diese nutzt die Wortliste aus `de_50k.txt`, um Wörter rekursiv in sinnvolle Einzelbestandteile zu zerlegen. Die Keywords werden anschließend für die Suche im Minecraft-Wiki verwendet.
 
 ### Lookup im Minecraft-Wiki
 
@@ -72,7 +67,7 @@ docker-compose up --build
 Der Server lauscht standardmäßig auf Port **3000**.
 
 
-## Lokaler Start ohne Docker (nicht empfohlen)
+## Lokaler Start ohne Docker 
 
 ```bash
 # Auch benötigt zum Ausführen der Unittests
@@ -85,48 +80,16 @@ python app.py
 
 ## Test Nutzung
 
-Für das Testen des Backens haben wir extra ein Shell Skript `test_villager_response.sh`angelegt. 
+Für das Testen des Backens haben wir extra ein Python Skript `test_villager_response.py`angelegt. 
 Nach dem Start des Backends über Docker, kann das Skript mit
 
 ```bash
-./test_villager_response.sh
+./test_villager_response.py
 ```
 
 ausgeführt werden. Es erscheint ein Eingabefeld, in welches Testnachrichten an den Dorfbewohner eingegeben werden können.
 Im Terminal wird dann die jeweilige Antwort des Dorfbewohners ausgegeben.
 
-
-## Test Nutung per curl API Aufruf
-
-**POST `/chat`** erwartet ein JSON-Objekt mit `message` und optional `context`.
-Der API-Key muss im Header `api-key` enthalten sein.
-
-Beispiel:
-
-```bash
-curl -X POST http://localhost:3000/chat \
-  -H "Content-Type: application/json" \
-  -H "api-key: 4luUOspevcoogFBMggw0aiCsVjeZWd1KS50e2C5upj5wSmrgeG0OY3sIlMZLfJHK79PNO5eXarQfvP5h9svp2nyJmo5Y175PzFayyOnZSUcgWYNHlpQlsPM5ljloQui7" \
-  -d '{ 
-        "message": "was hast du so im Angebot?", 
-        "context": [
-          "villager_level: Anfänger",
-          "villager_profession: toolsmith",
-          "villager_distance_to_player: 1.9 blocks",
-          "trade: 1x Emerald → 1x Stone Shovel",
-          "trade: 1x Emerald → 1x Stone Axe",
-          "time_of_day: 11:15 (Mittag)",
-          "day_count: Day 0",
-          "is_daytime: true",
-          "is_raining: false",
-          "is_thundering: false",
-          "dimension: minecraft:overworld",
-          "biome: minecraft:plains"
-        ]
-     }'
-```
-
-Die Antwort enthält das generierte ChatGPT-Statement.
 
 ## Tests
 

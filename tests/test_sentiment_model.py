@@ -28,7 +28,7 @@ class TestSentimentAnalysis(unittest.TestCase):
         self.assertIn(label.lower(), self.allowed_labels, msg=f"Label '{label}' nicht in {self.allowed_labels}")
 
     def test_friendly_sentence(self):
-        # Testet einen freundlichen Satz.
+        # Testet einen freundlichen Satz
         sentence = "Danke für deine tolle Hilfe!"
         expected = "freundlich"
         label, score, prompt = analyze_sentiment(self.pipeline, sentence)

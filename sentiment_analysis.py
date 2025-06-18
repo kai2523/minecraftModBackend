@@ -33,11 +33,11 @@ def init_sentiment_pipeline(model_dir):
 
 def map_label_to_prompt(label):
     """
-    Mappt das Ergebnis-Label der Sentiment-Analyse auf einen ChatGPT-Systemprompt.
+    Mappt das Label der Sentiment Analyse auf einen ChatGPT prompt.
 
-    Args: label (str): Roh-Label der Sentiment-Analyse (z.B. "freundlich", "neutral", "unfreundlich").
+    Args: label (str): Label der Sentiment-Analyse
 
-    Returns: str: Ein Prompt, der den gewünschten Ton beschreibt.
+    Returns: str: Ein Prompt, der die gewünschte Temperatur beschreibt.
     """
     l = label.lower()
     if l == "freundlich":
